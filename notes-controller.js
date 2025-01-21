@@ -1,5 +1,4 @@
 const fs = require("fs/promises"); //по умолчанию fs не промис
-const chalk = require("chalk");
 const path = require("path");
 
 const notePath = path.join(__dirname, "db.json"); //вместо прописывания вручную или относительного пути
@@ -31,7 +30,7 @@ async function deleteNote(id) {
   const updatedNotes = notes.filter((obj) => obj.id !== id);
 
   await fs.writeFile(notePath, JSON.stringify(updatedNotes));
-  console.log(chalk.green.inverse("note deleted"));
+  console.log("note deleted");
 }
 
 async function printNotes() {
@@ -39,12 +38,22 @@ async function printNotes() {
   console.log(chalk.bgCyan("List of notes"));
 
   notes.forEach((note) => {
-    console.log(chalk.cyan(`${note.id} ${note.title}`));
+    console.log(`${note.id} ${note.title}`);
   });
+}
+
+async function editNote(id, title) {
+  const notes = await getNotes();
+  notes.forEach((note, index) => {
+    if (note.id === id) notes.splice(index, 1, { title, id });
+  });
+
+  await fs.writeFile(notePath, JSON.stringify(notes));
 }
 
 module.exports = {
   addNote,
-  printNotes,
+  getNotes,
   deleteNote,
+  editNote,
 };
