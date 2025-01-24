@@ -1,54 +1,27 @@
-const fs = require("fs/promises"); //по умолчанию fs не промис
-const path = require("path");
-
-const notePath = path.join(__dirname, "db.json"); //вместо прописывания вручную или относительного пути
+const Note = require("./models/Note");
 
 async function addNote(title) {
-  const notes = await getNotes();
+  await Note.create({ title });
 
-  const note = {
-    title,
-    id: Date.now().toString(),
-  };
-
-  notes.push(note);
-  await fs.writeFile(notePath, JSON.stringify(notes));
+  console.log("Note was aded!");
 }
 
 async function getNotes() {
-  //   const bufferOfNotes = await fs.readFile(notePath); //вернет буфер
-  //   const stringOfNotes = Buffer.from(bufferOfNotes).toString("utf-8"); //вернет строку
-  //   или ниже:
-  const stringOfNotes2 = await fs.readFile(notePath, { encoding: "utf-8" }); //вернет строку
-  const notes = JSON.parse(stringOfNotes2); //вернет массив
+  const notes = await Note.find();
 
-  return Array.isArray(notes) ? notes : [];
+  return notes;
 }
 
 async function deleteNote(id) {
-  const notes = await getNotes();
-  const updatedNotes = notes.filter((obj) => obj.id !== id);
+  await Note.deleteOne({ _id: id });
 
-  await fs.writeFile(notePath, JSON.stringify(updatedNotes));
-  console.log("note deleted");
-}
-
-async function printNotes() {
-  const notes = await getNotes();
-  console.log(chalk.bgCyan("List of notes"));
-
-  notes.forEach((note) => {
-    console.log(`${note.id} ${note.title}`);
-  });
+  console.log("note deleted id:", id);
 }
 
 async function editNote(id, title) {
-  const notes = await getNotes();
-  notes.forEach((note, index) => {
-    if (note.id === id) notes.splice(index, 1, { title, id });
-  });
+  await Note.updateOne({ _id: id }, { title }); //1-где обновить, 2-что изменить
 
-  await fs.writeFile(notePath, JSON.stringify(notes));
+  console.log("note was updated id:", id);
 }
 
 module.exports = {

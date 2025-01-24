@@ -14,6 +14,8 @@
   <body>
     <% if (created) {%>
     <div class="alert alert-success">note has been created</div>
+    <%}%> <% if (error) {%>
+    <div class="alert alert-danger">something went wrong</div>
     <%}%>
 
     <div class="container">
